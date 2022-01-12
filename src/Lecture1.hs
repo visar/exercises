@@ -52,7 +52,7 @@ is 25.
 -}
 -- DON'T FORGET TO SPECIFY THE TYPE IN HERE
 sumOfSquares :: Integer -> Integer -> Integer
-sumOfSquares x y = x * x + y * y
+sumOfSquares x y = x ^ (2 :: Integer) + y ^ (2 :: Integer)
 
 {- | Implement a function that returns the last digit of a given number.
 
@@ -66,7 +66,7 @@ sumOfSquares x y = x * x + y * y
 -}
 -- DON'T FORGET TO SPECIFY THE TYPE IN HERE
 lastDigit :: Integer -> Integer
-lastDigit n = if n >=0 then mod n 10 else mod (-n) 10
+lastDigit n = mod (abs n) 10
 
 {- | Write a function that takes three numbers and returns the
 difference between the biggest number and the smallest one.
@@ -102,9 +102,12 @@ first character) and negative end position should result in an empty
 string.
 -}
 subString :: Int -> Int -> String -> String
-subString start end str = take (end - start' + 1) (drop start' str)
+subString start end str
+  | start < 0 && end < 0 = ""
+  | otherwise  = take (end' - start' + 1) (drop start' str)
   where
     start' = max 0 start
+    end' = max 0 end
 
 {- | Write a function that takes a String — space separated numbers,
 and finds a sum of the numbers inside this string.
@@ -115,7 +118,7 @@ and finds a sum of the numbers inside this string.
 The string contains only spaces and/or numbers.
 -}
 strSum :: String -> Int
-strSum str = sum (map (read :: String -> Int) (words str))
+strSum str = sum (map read (words str))
 
 {- | Write a function that takes a number and a list of numbers and
 returns a string, saying how many elements of the list are strictly
@@ -133,5 +136,13 @@ and lower than 6 elements (4, 5, 6, 7, 8 and 9).
 lowerAndGreater :: Int -> [Int] -> String
 lowerAndGreater n list = show n ++ " is greater than " ++ show grt ++ " elements and lower than " ++ show lwr ++ " elements"
   where
-    lwr = length (filter (> n) list)
-    grt = length (filter (< n) list)
+    (lwr, grt) = get list 0 0
+    get :: [Int] -> Int -> Int -> (Int, Int)
+    get lst l g
+      | null lst = (l, g)
+      | h > n = get t (l + 1) g
+      | h < n = get t l (g + 1)
+      | otherwise = get t l g
+      where
+        h = head lst
+        t = tail lst
